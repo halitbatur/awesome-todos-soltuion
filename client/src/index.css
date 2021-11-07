@@ -5,121 +5,24 @@
 }
 
 body {
+  margin: 0;
   font-family: "Oswald", sans-serif;
-  background: #3b4655;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #24283b;
   color: #e3e3e3;
 }
 
-header {
+.App {
+  margin: 0 auto;
   max-width: 640px;
   min-width: 300px;
-  margin: 0 auto;
 }
 
 .flex {
   display: flex;
 }
 
-.flex-grow {
-  flex-grow: 2;
-}
-
-.basis-40 * {
-  flex-basis: 40%;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.container {
-  max-width: 640px;
-  min-width: 300px;
-  margin: 0 auto;
-  background: #212121;
-  border-radius: 8px;
-  padding: 30px;
-  /* box-shadow: 0px 5px 20px 15px #565656; */
-}
-
-input[type="text"],
-select {
-  width: 100%;
-  display: block;
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  margin: 10px 0;
-  font-family: Oswald, sans-serif;
-}
-
-input::placeholder,
-select {
-  font-family: Oswald, sans-serif;
-}
-
-#btn-submit {
-  border: none;
-  width: 100%;
-  padding: 10px 20px;
-  margin: 30px 0;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  background: teal;
-  color: white;
-  outline: none;
-  transition: all 150ms ease-in;
-}
-
-#btn-submit:hover {
-  box-shadow: 0px 0px 8px 5px black;
-  cursor: pointer;
-}
-
-ul#todo-list {
-  list-style: none;
-  padding: 0;
-}
-
-.todo-item {
-  border: 1px solid gray;
-  border-radius: 8px;
-  margin-bottom: 8px;
-}
-
-.todo-item.checked .todo-title {
-  text-decoration: line-through;
-}
-
-.todo-item-check-container {
-  display: flex;
-  align-items: center;
-  padding: 0 15px;
-}
-
-.todo-item-meta-container {
-  width: 100%;
-  margin: 10px 20px;
-}
-
-.todo-title {
-  margin: 0;
-  margin-bottom: 15px;
-  padding: 0 10px;
-}
-
-.todo-deadline {
-  border-radius: 8px;
-  padding: 0 10px;
-}
-
-.passed-deadline .todo-deadline {
-  background: crimson;
-}
-
-.todo-item-meta-container > div {
-  display: flex;
-  justify-content: space-between;
+.flex-col {
+  flex-direction: column;
 }
