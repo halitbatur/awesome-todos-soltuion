@@ -57,27 +57,24 @@ const TodoListItem = ({
   onDone: (id: string, done: boolean) => void;
   onDelete: (id: string) => void;
   isDeleting: boolean;
-  isUpdating: boolean;
+  isUpdating?: boolean;
 }) => {
-  const classes = ["todo-item", "flex"];
+  const classes = ["todo-item"];
   done && classes.push("checked");
+  (isUpdating || isDeleting) && classes.push("pending")
 
   return (
     <li className={classes.join(" ")}>
-      <label className="todo-item-check-container">
-        <input
-          type="checkbox"
-          checked={done}
-          onChange={(e) => onDone(id, e.target.checked)}
-        />
-      </label>
-      <div className="todo-item-meta-container">
-        <h3 className="todo-title">{text}</h3>
-        <div>
-          <button className="todo-delete" onClick={() => onDelete(id)}>
-            Delete
-          </button>
-        </div>
+      <div className="todo-text">
+        {text}
+      </div>
+      <div className="todo-buttons">
+        <button onClick={() => onDelete(id)} title="Delete" disabled={isDeleting}>
+          {isDeleting? "◽◽":"❌"}
+        </button>
+        {!done && <button onClick={() => onDone(id, !done)} title={done?"Mark undone":"Mark done"} disabled={isUpdating}>
+          {isUpdating? "◽◽":"✔️"}
+        </button>}
       </div>
     </li>
   );
@@ -85,8 +82,8 @@ const TodoListItem = ({
 
 const TodoList = () => {
   const { data: todos, isLoading, isError } = useGetTodosQuery();
-  const [deleteTodo, { isLoading: isDeleting }] = useDeleteTodoMutation();
-  const [updateTodo, { isLoading: isUpdating }] = useUpdateTodoMutation();
+  const [deleteTodo, { isLoading: isDeleting, originalArgs: deletedId }] = useDeleteTodoMutation();
+  const [updateTodo, { isLoading: isUpdating, originalArgs: updatedId }] = useUpdateTodoMutation();
 
   const completeTodo = (id: string, done: boolean) => {
     updateTodo({ id, done });
@@ -106,18 +103,37 @@ const TodoList = () => {
     );
   }
 
+  const doneTodos = todos.filter(t => t.done)
+  const undoneTodos = todos.filter(t => !t.done)
+
   return (
-    <div className="todo-list">
-      {todos.map((todo) => (
+    <div>
+    <ul className="todo-list">
+      {undoneTodos.map((todo) => (
         <TodoListItem
           key={todo.id}
           data={todo}
           onDelete={deleteTodo}
           onDone={completeTodo}
-          isDeleting={isDeleting}
-          isUpdating={isUpdating}
+          isDeleting={isDeleting && deletedId === todo.id}
+          isUpdating={isUpdating && updatedId?.id === todo.id}
         />
       ))}
+    </ul>
+    <hr />
+    <h2>Completed</h2>
+    <ul className="todo-list">
+    {doneTodos.map((todo) => (
+        <TodoListItem
+          key={todo.id}
+          data={todo}
+          onDelete={deleteTodo}
+          onDone={completeTodo}
+          isDeleting={isDeleting && deletedId === todo.id}
+          isUpdating={isUpdating && updatedId?.id === todo.id}
+        />
+      ))}
+    </ul>
     </div>
   );
 };

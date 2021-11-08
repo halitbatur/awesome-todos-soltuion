@@ -32,7 +32,13 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "rules": {
+      "no-native-reassign": "off",
+      "no-global-assign": "warn",
+      "no-negated-in-lhs": "off",
+      "no-unsafe-negation": "warn"
+    }
   },
   "browserslist": {
     "production": [

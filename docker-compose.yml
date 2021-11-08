@@ -22,14 +22,15 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=$MONGODB_USER
       - MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD
-    backend:
-    context: ./server
+
+  backend:
     depends_on:
       - mongodb
       - mongodb-test
     container_name: node-app
     restart: always
-    build: .
+    build:
+      context: ./server
     env_file: ./.env
     volumes:
       - ./server:/backend-app
@@ -47,14 +48,14 @@ services:
       - SECRET_KEY=$APP_SECRET
     links:
       - mongodb
-      
+
   frontend:
-    context: ./client
     depends_on:
       - backend
     container_name: react-app
     restart: always
-    build: .
+    build:
+      context: ./client
     env_file: ./.env
     volumes:
       - ./client:/frontend-app
