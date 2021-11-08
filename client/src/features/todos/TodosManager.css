@@ -1,7 +1,10 @@
-.todo-form {
+main {
   max-width: 640px;
   min-width: 300px;
   margin: 0 auto;
+}
+
+.todo-form {
   background: #313654;
   border-radius: 8px;
   padding: 30px;

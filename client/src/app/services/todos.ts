@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import { RootState } from "../store";
+import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
+import { RootState } from '../store';
 
 export interface Todo {
   id: string;
@@ -18,31 +18,31 @@ export interface User {
 
 // Create our baseQuery instance
 const baseQuery = fetchBaseQuery({
-  baseUrl: "/",
+  baseUrl: 'https://5000-jade-panda-rdx4kbll.ws-eu18.gitpod.io/api/',
   prepareHeaders: (headers, { getState }) => {
     // By default, if we have a token in the store, let's use that for authenticated requests
     const token = (getState() as RootState).auth.token;
     if (token) {
-      headers.set("authentication", `Bearer ${token}`);
+      headers.set('authentication', `Bearer ${token}`);
     }
     return headers;
   },
 });
 
-const baseQueryWithRetry = retry(baseQuery, { maxRetries: 6 });
+const baseQueryWithRetry = retry(baseQuery, { maxRetries: 3 });
 
-const __TAG__ = "Todo";
-const __API_PATH__ = "todos";
+const __TAG__ = 'Todo';
+const __API_PATH__ = 'todos';
 
 export const todoApi = createApi({
-  reducerPath: "todosApi", // We only specify this because there are many services. This would not be common in most applications
+  reducerPath: 'todosApi', // We only specify this because there are many services. This would not be common in most applications
   baseQuery: baseQueryWithRetry,
   tagTypes: [__TAG__],
   endpoints: (build) => ({
     login: build.mutation<{ token: string; user: User }, any>({
       query: (credentials: any) => ({
-        url: "login",
-        method: "POST",
+        url: 'login',
+        method: 'POST',
         body: credentials,
       }),
     }),
@@ -56,10 +56,10 @@ export const todoApi = createApi({
             ]
           : [__TAG__],
     }),
-    addTodo: build.mutation<Todo, Omit<Todo, "id">>({
+    addTodo: build.mutation<Todo, Omit<Todo, 'id'>>({
       query: (body) => ({
         url: __API_PATH__,
-        method: "POST",
+        method: 'POST',
         body,
       }),
       invalidatesTags: [__TAG__],
@@ -73,7 +73,7 @@ export const todoApi = createApi({
         const { id, ...body } = data;
         return {
           url: `${__API_PATH__}/${id}`,
-          method: "PUT",
+          method: 'PUT',
           body,
         };
       },
@@ -83,7 +83,7 @@ export const todoApi = createApi({
       query(id) {
         return {
           url: `${__API_PATH__}/${id}`,
-          method: "DELETE",
+          method: 'DELETE',
         };
       },
       invalidatesTags: [__TAG__],

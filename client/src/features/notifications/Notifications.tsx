@@ -34,7 +34,7 @@ export function Notifications() {
         },
       });
     });
-  });
+  }, [notifications, dispatch]);
 
   return (
     <div className="notifications-wrapper">

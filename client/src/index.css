@@ -13,10 +13,13 @@ body {
   color: #e3e3e3;
 }
 
-.App {
+.header-container {
   margin: 0 auto;
   max-width: 640px;
   min-width: 300px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .flex {

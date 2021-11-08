@@ -19,13 +19,7 @@ export function Header() {
   return (
     <header>
       <Notifications />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <div className="header-container">
         <div
           style={{ display: "flex", alignItems: "center", fontSize: "1.5rem" }}
         >
