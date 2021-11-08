@@ -3,6 +3,6 @@ FROM node:16-alpine
 RUN mkdir -p /backend-app
 WORKDIR /backend-app
 COPY package.json .
-RUN npm i
+RUN yarn
 COPY . .
-CMD ["npm", "run", "start"]
+CMD ["yarn", "run", "start"]
