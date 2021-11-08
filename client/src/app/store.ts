@@ -6,7 +6,6 @@ import {
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { todoApi } from './services/todos';
 import auth from '../features/auth/authSlice';
-import notifications from '../features/notifications/notificationsSlice';
 import {
   MiddlewareAPI,
   isRejectedWithValue,
@@ -47,7 +46,6 @@ export const createStore = (
   configureStore({
     reducer: {
       [todoApi.reducerPath]: todoApi.reducer,
-      notifications,
       auth,
     },
     middleware: (getDefaultMiddleware: () => Array<Middleware>) =>

@@ -1,6 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { todoApi, User } from "../../app/services/todos";
-import { RootState } from "../../app/store";
+import { createSlice } from '@reduxjs/toolkit';
+import { todoApi, User } from '../../app/services/todos';
+import { RootState } from '../../app/store';
 
 const initialState = {
   user: null,
@@ -9,7 +9,7 @@ const initialState = {
 } as { user: null | User; token: string | null; isAuthenticated: boolean };
 
 const slice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     logout: () => initialState,
@@ -17,16 +17,16 @@ const slice = createSlice({
   extraReducers: (builder) => {
     builder
       .addMatcher(todoApi.endpoints.login.matchPending, (state, action) => {
-        console.log("pending", action);
+        console.log('pending', action);
       })
       .addMatcher(todoApi.endpoints.login.matchFulfilled, (state, action) => {
-        console.log("fulfilled", action);
+        console.log('fulfilled', action);
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
       })
       .addMatcher(todoApi.endpoints.login.matchRejected, (state, action) => {
-        console.log("rejected", action);
+        console.log('rejected', action);
       });
   },
 });

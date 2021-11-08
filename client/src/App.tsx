@@ -1,5 +1,5 @@
-import { Header } from "./features/header/Header";
-import TodosManager from "./features/todos/TodosManager";
+import { Header } from './features/header/Header';
+import TodosManager from './features/todos/TodosManager';
 
 function App() {
   return (
