@@ -6,6 +6,7 @@ import {
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { todoApi } from './services/todos';
 import auth from '../features/auth/authSlice';
+import todos from '../features/todos/todosLocalSlice';
 import {
   MiddlewareAPI,
   isRejectedWithValue,
@@ -21,20 +22,14 @@ const rtkQueryErrorLogger: Middleware =
     // RTK Query uses `createAsyncThunk` from redux-toolkit under the hood, so we're able to utilize these use matchers!
     if (isRejectedWithValue(action)) {
       console.warn('We got a rejected action!', action);
-      notificationsStore.addNotification({
-        id: nanoid(),
-        title: 'Error',
-        message:
-          action.payload?.error ?? action.error?.message ?? 'An error occured.',
-        type: 'danger',
-        insert: 'bottom',
-        container: 'bottom-right',
-        dismiss: {
-          duration: 3000,
-          pauseOnHover: true,
-          onScreen: true,
-        },
-      });
+      notify(
+        action.payload?.error ?? action.error?.message ?? 'An error occured.',
+        'danger',
+        'Error',
+        3000,
+        true,
+        true
+      );
     }
 
     return next(action);
@@ -47,8 +42,9 @@ export const createStore = (
     reducer: {
       [todoApi.reducerPath]: todoApi.reducer,
       auth,
+      todos,
     },
-    middleware: (getDefaultMiddleware: () => Array<Middleware>) =>
+    middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(todoApi.middleware, rtkQueryErrorLogger),
     ...options,
   });
@@ -59,3 +55,32 @@ export type AppDispatch = typeof store.dispatch;
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export type RootState = ReturnType<typeof store.getState>;
 export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+export const notify = (
+  message: string,
+  type:
+    | 'success'
+    | 'danger'
+    | 'info'
+    | 'default'
+    | 'warning'
+    | undefined = 'success',
+  title: string = 'Success',
+  timeout: number = 1500,
+  onScreen: boolean = false,
+  pauseOnHover: boolean = false
+) => {
+  notificationsStore.addNotification({
+    id: nanoid(),
+    title,
+    message,
+    type,
+    insert: 'bottom',
+    container: 'bottom-right',
+    dismiss: {
+      duration: timeout,
+      onScreen,
+      pauseOnHover,
+    },
+  });
+};

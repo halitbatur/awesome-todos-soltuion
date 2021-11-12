@@ -43,6 +43,8 @@ services:
       - DB_PASSWORD=$MONGODB_PASSWORD
       - DB_NAME=$MONGODB_DATABASE
       - DB_PORT=27017
+      - GAPP_CLEINT_ID=$GAPP_CLIENT_ID
+      - GAPP_CLIENT_SECRET=$GAPP_CLIENT_SECRET
       - SERVER_PORT=$NODE_LOCAL_PORT
       - IS_DOCKER=true
       - SECRET_KEY=$APP_SECRET
@@ -56,14 +58,13 @@ services:
     restart: always
     build:
       context: ./client
-    env_file: ./.env
     volumes:
       - ./client:/frontend-app
     ports:
       - $REACT_LOCAL_PORT:$REACT_DOCKER_PORT
     environment:
       - SERVER_PORT=$NODE_LOCAL_PORT
-      - SERVER_HOST=backend
+      - REACT_APP_DEV_SERVER_HOST=http://backend:$NODE_LOCAL_PORT
       - IS_DOCKER=true
     links:
       - backend

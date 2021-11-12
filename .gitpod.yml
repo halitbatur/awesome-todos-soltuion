@@ -1,0 +1,7 @@
+ports:
+  - port: 3000
+    visibility: private
+    onOpen: notify
+  - port: 5000
+    visibility: private
+    onOpen: ignore

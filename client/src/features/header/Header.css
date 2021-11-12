@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&display=swap');
+
+nav.navbar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #424972;
+  padding: 8px;
+}
+
+.navbar .logo {
+  height: 3rem;
+}
+
+.navbar .logo img {
+  height: 100%;
+}

@@ -1,6 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { todoApi, User } from '../../app/services/todos';
+import { todoApi } from '../../app/services/todos';
 import { RootState } from '../../app/store';
+
+export interface User {
+  firstname: string;
+  lastname: string;
+  email: string;
+  profilePicture: string;
+}
 
 const initialState = {
   user: null,

@@ -1,6 +1,11 @@
 import { format } from 'date-fns';
 import ReactNotification from 'react-notifications-component';
+import logo from '../../assets/logo.svg';
 import 'react-notifications-component/dist/theme.css';
+import './Header.css';
+import { useTypedSelector } from '../../app/store';
+import { selectIsAuthenticated } from '../auth/authSlice';
+import { Auth } from '../auth/Auth';
 
 const parse = (nd: Date) => {
   return {
@@ -16,10 +21,12 @@ const parse = (nd: Date) => {
 
 export function Header() {
   const date = parse(new Date());
+  const isAuthenticated = useTypedSelector(selectIsAuthenticated);
 
   return (
     <header>
       <ReactNotification />
+      <Navbar />
       <div className="header-container">
         <div
           style={{ display: 'flex', alignItems: 'center', fontSize: '1.5rem' }}
@@ -32,8 +39,29 @@ export function Header() {
             <div>{date.year}</div>
           </div>
         </div>
+        <div>
+          {!isAuthenticated && (
+            <p style={{ fontSize: '1rem' }}>
+              Your todos are saved in the browser only!
+              <br /> Sign in to save in the database
+            </p>
+          )}
+        </div>
         <div style={{ fontSize: '2rem' }}>{date.weekday}</div>
       </div>
     </header>
   );
 }
+
+const Navbar = () => {
+  return (
+    <nav className="navbar">
+      <div className="logo">
+        <img src={logo} alt="Awesome Todos" />
+      </div>
+      <div>
+        <Auth />
+      </div>
+    </nav>
+  );
+};

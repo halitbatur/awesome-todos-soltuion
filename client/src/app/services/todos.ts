@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
+import { User } from '../../features/auth/authSlice';
 import { RootState } from '../store';
 
 export interface Todo {
@@ -7,18 +8,11 @@ export interface Todo {
   text: string;
 }
 
-type TodosResponse = Todo[];
-
-export interface User {
-  firstname: string;
-  lastname: string;
-  email: string;
-  profilePicture: string;
-}
+const baseUrl = '/api/';
 
 // Create our baseQuery instance
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'https://5000-jade-panda-rdx4kbll.ws-eu18.gitpod.io/api/',
+  baseUrl,
   prepareHeaders: (headers, { getState }) => {
     // By default, if we have a token in the store, let's use that for authenticated requests
     const token = (getState() as RootState).auth.token;
@@ -33,6 +27,7 @@ const baseQueryWithRetry = retry(baseQuery, { maxRetries: 3 });
 
 const __TAG__ = 'Todo';
 const __API_PATH__ = 'todos';
+export const __API_LOGIN_PATH__ = baseUrl + 'auth/google';
 
 export const todoApi = createApi({
   reducerPath: 'todosApi', // We only specify this because there are many services. This would not be common in most applications
@@ -46,15 +41,15 @@ export const todoApi = createApi({
         body: credentials,
       }),
     }),
-    getTodos: build.query<TodosResponse, void>({
+    getTodos: build.query<Todo[], void>({
       query: () => ({ url: __API_PATH__ }),
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: `${__TAG__}` as const, id })),
-              __TAG__,
+              ...result.map(({ id }) => ({ type: 'Todo' as const, id })),
+              { type: __TAG__, id: 'LIST' },
             ]
-          : [__TAG__],
+          : [{ type: __TAG__, id: 'LIST' }],
     }),
     addTodo: build.mutation<Todo, Omit<Todo, 'id'>>({
       query: (body) => ({
@@ -62,11 +57,11 @@ export const todoApi = createApi({
         method: 'POST',
         body,
       }),
-      invalidatesTags: [__TAG__],
+      invalidatesTags: [{ type: __TAG__, id: 'LIST' }],
     }),
     getTodo: build.query<Todo, string>({
       query: (id) => `${__API_PATH__}/${id}`,
-      providesTags: [__TAG__],
+      providesTags: (result, error, id) => [{ type: __TAG__, id }],
     }),
     updateTodo: build.mutation<Todo, Partial<Todo>>({
       query(data) {
@@ -77,7 +72,7 @@ export const todoApi = createApi({
           body,
         };
       },
-      invalidatesTags: [__TAG__],
+      invalidatesTags: (result, error, arg) => [{ type: __TAG__, id: arg.id }],
     }),
     deleteTodo: build.mutation<{ success: boolean; id: string }, string>({
       query(id) {
@@ -86,7 +81,7 @@ export const todoApi = createApi({
           method: 'DELETE',
         };
       },
-      invalidatesTags: [__TAG__],
+      invalidatesTags: (result, error, id) => [{ type: __TAG__, id }],
     }),
   }),
 });

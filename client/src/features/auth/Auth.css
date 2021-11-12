@@ -1,0 +1,29 @@
+.btn-google {
+  height: 3rem;
+  background-color: white;
+  border: 1px solid whitesmoke;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #353535;
+  padding: 10px;
+  cursor: pointer;
+  transition: box-shadow 218ms;
+}
+
+.btn-google:hover {
+  box-shadow: 0 0 3px 3px rgb(255 255 255 / 30%);
+}
+
+.btn-google:active {
+  box-shadow: 0 0 3px 3px rgb(255 255 255 / 30%);
+  background-color: rgba(255 255 255 / 80%);
+}
+
+.btn-google::before {
+  content: url('../../assets/ic_google.svg');
+  margin-right: 10px;
+}
