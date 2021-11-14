@@ -1,9 +1,13 @@
 version: "3.8"
+
 services:
   mongodb:
     container_name: mongodb
     restart: unless-stopped
     env_file: ./.env
+    profiles:
+      - prod
+      - dev
     logging:
       driver: none
     image: mongo:5.0.3
@@ -12,10 +16,13 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD
     volumes:
       - db:/data/db
+
   mongodb-test:
     container_name: mongodb-test
     restart: unless-stopped
     env_file: ./.env
+    profiles:
+      - test
     logging:
       driver: none
     image: mongo:5.0.3
@@ -26,36 +33,70 @@ services:
   backend:
     depends_on:
       - mongodb
-      - mongodb-test
     container_name: node-app
     restart: always
     build:
       context: ./server
     env_file: ./.env
+    profiles:
+      - prod
+      - dev
     volumes:
       - ./server:/backend-app
     ports:
       - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
     environment:
+      - SECRET_KEY=$APP_SECRET
       - DB_HOST=mongodb
       - TEST_DB_HOST=mongodb-test
       - DB_USER=$MONGODB_USER
       - DB_PASSWORD=$MONGODB_PASSWORD
       - DB_NAME=$MONGODB_DATABASE
       - DB_PORT=27017
+      - PORT=$NODE_DOCKER_PORT
+      - PROXY_PORT=$NGINX_LOCAL_PORT
       - GAPP_CLEINT_ID=$GAPP_CLIENT_ID
       - GAPP_CLIENT_SECRET=$GAPP_CLIENT_SECRET
-      - SERVER_PORT=$NODE_LOCAL_PORT
+      - GITPOD_WORKSPACE_URL=$GITPOD_WORKSPACE_URL
       - IS_DOCKER=true
+
+  backend_test:
+    depends_on:
+      - mongodb-test
+    container_name: node-app-test
+    restart: always
+    profiles:
+      - test
+    build:
+      context: ./server
+      dockerfile: Dockerfile.test
+    env_file: ./.env
+    volumes:
+      - ./server:/backend-app
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    environment:
       - SECRET_KEY=$APP_SECRET
-    links:
-      - mongodb
+      - DB_HOST=mongodb-test
+      - DB_USER=$MONGODB_USER
+      - DB_PASSWORD=$MONGODB_PASSWORD
+      - DB_NAME=$MONGODB_DATABASE
+      - DB_PORT=27017
+      - PORT=$NODE_DOCKER_PORT
+      - PROXY_PORT=$NGINX_LOCAL_PORT
+      - GAPP_CLEINT_ID=$GAPP_CLIENT_ID
+      - GAPP_CLIENT_SECRET=$GAPP_CLIENT_SECRET
+      - GITPOD_WORKSPACE_URL=$GITPOD_WORKSPACE_URL
+      - IS_DOCKER=true
+      - CI=true
 
   frontend:
     depends_on:
       - backend
     container_name: react-app
     restart: always
+    profiles:
+      - dev
     build:
       context: ./client
     volumes:
@@ -63,10 +104,56 @@ services:
     ports:
       - $REACT_LOCAL_PORT:$REACT_DOCKER_PORT
     environment:
-      - SERVER_PORT=$NODE_LOCAL_PORT
-      - REACT_APP_DEV_SERVER_HOST=http://backend:$NODE_LOCAL_PORT
+      - CI=true
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=$REACT_DOCKER_PORT
+      - PROXY_PORT=$NGINX_LOCAL_PORT
       - IS_DOCKER=true
-    links:
+
+  nginx_dev:
+    depends_on:
       - backend
+      - frontend
+    container_name: nginx-proxy-dev
+    restart: always
+    profiles:
+      - dev
+    logging:
+      driver: none
+    build:
+      context: ./nginx
+    volumes:
+      - ./nginx/templates/dev.conf.template:/etc/nginx/templates/dev.conf.template
+    ports:
+      - $NGINX_LOCAL_PORT:$NGINX_DOCKER_PORT
+    environment:
+      - PORT=$NGINX_DOCKER_PORT
+      - REACT_DEV_HOST=frontend
+      - REACT_DEV_PORT=$REACT_DOCKER_PORT
+      - NODE_HOST=backend
+      - NODE_PORT=$NODE_DOCKER_PORT
+
+  nginx:
+    depends_on:
+      - backend
+    container_name: nginx-proxy
+    logging:
+      driver: none
+    restart: always
+    profiles:
+      - prod
+    build:
+      context: ./nginx
+    volumes:
+      - ./nginx/templates/prod.conf.template:/etc/nginx/templates/prod.conf.template
+      - ./nginx/client_build:/usr/share/nginx/html
+    ports:
+      - $NGINX_LOCAL_PORT:$NGINX_DOCKER_PORT
+    environment:
+      - PORT=$NGINX_DOCKER_PORT
+      - NODE_HOST=backend
+      - NODE_PORT=$NODE_DOCKER_PORT
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+
 volumes:
   db:

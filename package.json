@@ -1,0 +1,18 @@
+{
+  "name": "awesome-todos",
+  "version": "1.0.0",
+  "description": "a todo app",
+  "author": "Wisam Naji",
+  "license": "MIT",
+  "scripts": {
+    "start": "docker-compose --profile prod up",
+    "build": "docker-compose --profile prod up --build",
+    "stop": "docker-compose stop",
+    "down": "docker-compose down",
+    "prune": "docker-compose down --volume",
+    "dev": "docker-compose --profile dev up",
+    "build:dev": "docker-compose --profile dev up --build",
+    "test": "docker-compose --profile test up",
+    "build:client": "cd client && BUILD_PATH='../nginx/client_build' yarn build"
+  }
+}

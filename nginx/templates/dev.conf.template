@@ -1,0 +1,26 @@
+upstream client {
+    server ${REACT_DEV_HOST}:${REACT_DEV_PORT};
+}
+
+upstream api {
+    server ${NODE_HOST}:${NODE_PORT};
+}
+
+server {
+    listen ${PORT};
+
+    location / {
+        proxy_pass http://client;
+    }
+
+    location /sockjs-node {
+        proxy_pass http://client;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+    
+    location /api {
+        proxy_pass http://api;
+    }
+}
