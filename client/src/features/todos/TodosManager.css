@@ -63,9 +63,26 @@ main {
   background-color: #313654;
   border-radius: 8px;
 }
+.todo-item .todo-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
 
 .todo-item .todo-text {
   font-size: 1.5rem;
+}
+
+.todo-tags div {
+  border-radius: 2px;
+  padding: 0 2px;
+  background-color: #3178c6;
+  font-size: 0.7rem;
 }
 
 .todo-item.checked .todo-text {

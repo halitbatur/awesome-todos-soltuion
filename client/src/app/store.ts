@@ -22,14 +22,13 @@ const rtkQueryErrorLogger: Middleware =
     // RTK Query uses `createAsyncThunk` from redux-toolkit under the hood, so we're able to utilize these use matchers!
     if (isRejectedWithValue(action)) {
       console.warn('We got a rejected action!', action);
-      notify(
-        action.payload?.error ?? action.error?.message ?? 'An error occured.',
-        'danger',
-        'Error',
-        3000,
-        true,
-        true
-      );
+      let msg =
+        action.payload?.data?.message ??
+        action.payload?.error ??
+        action.error?.message ??
+        'An error occured.';
+
+      notify(msg, 'danger', 'Error', 3000, true, true);
     }
 
     return next(action);

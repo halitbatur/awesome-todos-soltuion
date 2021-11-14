@@ -22,7 +22,7 @@ const initialState = loadLocalStorage();
 export const addLocalTodo = createAsyncThunk(
   'todosLocal/add',
   async (todo: Omit<Todo, 'id'>) => {
-    let item: Todo = { ...todo, id: nanoid() };
+    let item: Todo = { ...todo, id: nanoid(), isLocal: true };
     const todos = loadLocalStorage();
     todos.push(item);
     saveLocalStorage(todos);

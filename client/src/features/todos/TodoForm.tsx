@@ -5,17 +5,19 @@ import { selectIsAuthenticated } from '../auth/authSlice';
 import { addLocalTodo } from './todosLocalSlice';
 
 export const TodoForm: React.FC<any> = () => {
-  const initialValue = { text: '', done: false };
+  const isAuthenticated = useTypedSelector(selectIsAuthenticated);
+
+  const initialValue = { text: '', done: false, isLocal: !isAuthenticated };
   const [todo, setTodo] = useState<Omit<Todo, 'id'>>(initialValue);
   const [addTodo, { isLoading }] = useAddTodoMutation();
 
-  const isAuthenticated = useTypedSelector(selectIsAuthenticated);
   const dispatch = useAppDispatch();
 
   const handleChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
     setTodo((prev) => ({
       ...prev,
       [target.name]: target.value,
+      isLocal: !isAuthenticated,
     }));
   };
 

@@ -1,15 +1,15 @@
 import { Todo } from '../../app/services/todos';
 
 export const TodoListItem = ({
-  data: { text, id, done },
+  data: { text, id, done, isLocal },
   onDone,
   onDelete,
   isDeleting,
   isUpdating,
 }: {
   data: Todo;
-  onDone: (id: string, done: boolean) => void;
-  onDelete: (id: string) => void;
+  onDone: (id: string, done: boolean, isLocal: boolean | void) => void;
+  onDelete: (id: string, isLocal: boolean | void) => void;
   isDeleting: boolean;
   isUpdating?: boolean;
 }) => {
@@ -19,10 +19,15 @@ export const TodoListItem = ({
 
   return (
     <li className={classes.join(' ')}>
-      <div className="todo-text">{text}</div>
+      <div className="todo-content">
+        <div className="todo-text">{text}</div>
+        <div className="todo-tags">
+          {isLocal ? <div className="todo-local">local</div> : <></>}
+        </div>
+      </div>
       <div className="todo-buttons">
         <button
-          onClick={() => onDelete(id)}
+          onClick={() => onDelete(id, isLocal)}
           title="Delete"
           disabled={isDeleting}
         >
@@ -30,7 +35,7 @@ export const TodoListItem = ({
         </button>
         {!done && (
           <button
-            onClick={() => onDone(id, !done)}
+            onClick={() => onDone(id, !done, isLocal)}
             title={done ? 'Mark undone' : 'Mark done'}
             disabled={isUpdating}
           >

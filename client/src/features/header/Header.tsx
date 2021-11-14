@@ -4,7 +4,7 @@ import logo from '../../assets/logo.svg';
 import 'react-notifications-component/dist/theme.css';
 import './Header.css';
 import { useTypedSelector } from '../../app/store';
-import { selectIsAuthenticated } from '../auth/authSlice';
+import { selectIsAuthenticated, selectIsLogginIn } from '../auth/authSlice';
 import { Auth } from '../auth/Auth';
 
 const parse = (nd: Date) => {
@@ -22,6 +22,7 @@ const parse = (nd: Date) => {
 export function Header() {
   const date = parse(new Date());
   const isAuthenticated = useTypedSelector(selectIsAuthenticated);
+  const isLogginIn = useTypedSelector(selectIsLogginIn);
 
   return (
     <header>
@@ -40,7 +41,7 @@ export function Header() {
           </div>
         </div>
         <div>
-          {!isAuthenticated && (
+          {!isLogginIn && !isAuthenticated && (
             <p style={{ fontSize: '1rem' }}>
               Your todos are saved in the browser only!
               <br /> Sign in to save in the database
@@ -57,7 +58,8 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="logo">
-        <img src={logo} alt="Awesome Todos" />
+        <h2>Awesome Todos</h2>
+        <img src={logo} alt="Awesome Todos" title="Awesome Todos" />
       </div>
       <div>
         <Auth />

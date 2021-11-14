@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 import { User } from '../../features/auth/authSlice';
-import { RootState } from '../store';
+// import { RootState } from '../store';
 
 export interface Todo {
   id: string;
   done: boolean;
   text: string;
+  isLocal: boolean | void;
 }
 
 const baseUrl = '/api/';
@@ -13,14 +14,14 @@ const baseUrl = '/api/';
 // Create our baseQuery instance
 const baseQuery = fetchBaseQuery({
   baseUrl,
-  prepareHeaders: (headers, { getState }) => {
-    // By default, if we have a token in the store, let's use that for authenticated requests
-    const token = (getState() as RootState).auth.token;
-    if (token) {
-      headers.set('authentication', `Bearer ${token}`);
-    }
-    return headers;
-  },
+  // prepareHeaders: (headers, { getState }) => {
+  //   // By default, if we have a token in the store, let's use that for authenticated requests
+  //   const token = (getState() as RootState).auth.token;
+  //   if (token) {
+  //     headers.set('authentication', `Bearer ${token}`);
+  //   }
+  //   return headers;
+  // },
 });
 
 const baseQueryWithRetry = retry(baseQuery, { maxRetries: 3 });

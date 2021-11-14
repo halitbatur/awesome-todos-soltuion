@@ -10,6 +10,9 @@ nav.navbar {
 
 .navbar .logo {
   height: 3rem;
+  display: flex;
+  align-items: center;
+  color: #24283b;
 }
 
 .navbar .logo img {

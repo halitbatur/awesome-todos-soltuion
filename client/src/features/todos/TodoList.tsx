@@ -21,8 +21,7 @@ export const TodoList = () => {
     data: todosRemote,
     isLoading,
     isError,
-    isUninitialized,
-  } = useGetTodosQuery(undefined, { skip: isAuthenticated });
+  } = useGetTodosQuery(undefined, { skip: !isAuthenticated });
 
   const todosLocal = useTypedSelector(selectTodos);
 
@@ -31,33 +30,39 @@ export const TodoList = () => {
   const [updateTodo, { isLoading: isUpdating, originalArgs: updatedId }] =
     useUpdateTodoMutation();
 
-  const completeTodo = (id: string, done: boolean) => {
+  const checkTodo = (id: string, done: boolean, isLocal: boolean | void) => {
     const onDone = () => {
       notify('Todo updated', 'info');
     };
-    if (!isUninitialized) {
+
+    if (!isAuthenticated || isLocal) {
       dispatch(checkLocalTodo({ id })).then(onDone);
-    } else updateTodo({ id, done }).then(onDone);
+    } else {
+      updateTodo({ id, done }).then(onDone);
+    }
+  };
+
+  const removeTodo = (id: string, isLocal: boolean | void) => {
+    const onDone = () => {
+      notify('Todo Deleted');
+    };
+
+    if (!isAuthenticated || isLocal) {
+      dispatch(deleteLocalTodo({ id })).then(onDone);
+    } else {
+      deleteTodo(id).then(onDone);
+    }
   };
 
   let todos: Todo[];
   if (isAuthenticated) {
-    todos = todosRemote ?? [];
+    todos = (todosRemote ?? []).concat(...todosLocal);
   } else {
     todos = todosLocal;
   }
 
   const doneTodos = todos.filter((t) => t.done);
   const undoneTodos = todos.filter((t) => !t.done);
-
-  const removeTodo = (id: string) => {
-    const onDone = () => {
-      notify('Todo Deleted');
-    };
-    if (!isAuthenticated) {
-      dispatch(deleteLocalTodo({ id })).then(onDone);
-    } else deleteTodo(id).then();
-  };
 
   if (isLoading && !isError) {
     return (
@@ -78,7 +83,7 @@ export const TodoList = () => {
       key={todo.id}
       data={todo}
       onDelete={removeTodo}
-      onDone={completeTodo}
+      onDone={checkTodo}
       isDeleting={isDeleting && deletedId === todo.id}
       isUpdating={isUpdating && updatedId?.id === todo.id}
     />
@@ -86,6 +91,7 @@ export const TodoList = () => {
 
   return (
     <div>
+      {!isAuthenticated && <h2>Local todos</h2>}
       <ul className="todo-list">{undoneTodos.map(renderTodoItem)}</ul>
       {doneTodos.length > 0 && (
         <div style={{ marginTop: '1rem' }}>

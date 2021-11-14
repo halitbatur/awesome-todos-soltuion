@@ -1,47 +1,70 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { todoApi } from '../../app/services/todos';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
 export interface User {
-  firstname: string;
-  lastname: string;
+  name: string;
   email: string;
-  profilePicture: string;
+  avatar: string;
 }
 
 const initialState = {
   user: null,
-  token: null,
   isAuthenticated: false,
-} as { user: null | User; token: string | null; isAuthenticated: boolean };
+  isLoading: false,
+} as { user: null | User; isAuthenticated: boolean; isLoading: boolean };
+
+export const login = createAsyncThunk<User>('user/login', async () => {
+  const res = await fetch('/api/auth/me');
+
+  if (!res.ok) {
+    throw new Error('Not logged in');
+  }
+
+  if (
+    res.headers.get('Content-Type')?.toLowerCase().includes('application/json')
+  ) {
+    return await res.json();
+  } else {
+    return null;
+  }
+});
+
+export const logout = createAsyncThunk('user/logout', async () => {
+  await fetch('/api/auth/logout');
+  return null;
+});
 
 const slice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {
-    logout: () => initialState,
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addMatcher(todoApi.endpoints.login.matchPending, (state, action) => {
-        console.log('pending', action);
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
       })
-      .addMatcher(todoApi.endpoints.login.matchFulfilled, (state, action) => {
-        console.log('fulfilled', action);
-        state.user = action.payload.user;
-        state.token = action.payload.token;
+      .addCase(login.fulfilled, (state, action) => {
+        state.user = action.payload;
         state.isAuthenticated = true;
+        state.isLoading = false;
       })
-      .addMatcher(todoApi.endpoints.login.matchRejected, (state, action) => {
-        console.log('rejected', action);
+      .addCase(login.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
       });
   },
 });
 
-export const { logout } = slice.actions;
 export default slice.reducer;
 
-export const selectIsAuthenticated = (state: RootState) =>
+export const selectIsAuthenticated: (state: RootState) => boolean = (state) =>
   state.auth.isAuthenticated;
 
-export const selectUser = (state: RootState) => state.auth.user;
+export const selectIsLogginIn: (state: RootState) => boolean = (state) =>
+  state.auth.isLoading;
+
+export const selectUser: (state: RootState) => User | null = (state) =>
+  state.auth.user;
