@@ -126,6 +126,10 @@ This project already contains all docker configurations. You work can all be ins
 
 To start the server, you can run `yarn run setup` then `yarn start` in the root directory. It will create and run all the required containers for your server and client. Then you can navigate to `http:localhost:3000` to start using the app.
 
+### Installing packages
+
+To install packages for the express server, simply cd into `./server` then `yarn add PACKAGE_NAME`. It will get installed inside the running container as well.
+
 ### Scripts
 
 - `yarn run start`: Runs docker-compose with built client package.
