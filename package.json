@@ -5,6 +5,9 @@
   "author": "Wisam Naji",
   "license": "MIT",
   "scripts": {
+    "setup": "yarn run setup:server && yarn run setup:client",
+    "setup:server": "cd server && yarn -s",
+    "setup:client": "cd client && yarn -s",
     "start": "docker-compose --profile prod up",
     "build": "docker-compose --profile prod up --build",
     "stop": "docker-compose stop",

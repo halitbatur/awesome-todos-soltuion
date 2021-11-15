@@ -4,6 +4,11 @@ In this lab we will implement an API rest server that handles CRUDing Todos. You
 
 The client also has the sign in with google feature already configured. However, your API server needs to handle signing with google logic internally. To accomplish this, it requires credentials from Google, which can be obtained by setting up a project in [Google APIs console](https://console.cloud.google.com/apis/credentials).
 
+To start the lab run the following commands in the root directory:
+
+- `yarn run setup`: This is required after first start only to install node_modules
+- `yarn start`: Run this every time to start the containers
+
 ## Routes
 
 The NGINX reverse proxy is setup to redirect any request starting with `/api` to the express api server. Thus, all your routes need to start with `/api`. Additionally, the client is already set up to communicate over the following routes.
@@ -119,7 +124,7 @@ When user is signed in:
 
 This project already contains all docker configurations. You work can all be inside `./server` directory.
 
-To start the server, you can run `yarn start` in the root directory. It will create and run all the required containers for your server and client. Then you can navigate to `http:localhost:3000` to start using the app.
+To start the server, you can run `yarn run setup` then `yarn start` in the root directory. It will create and run all the required containers for your server and client. Then you can navigate to `http:localhost:3000` to start using the app.
 
 ### Scripts
 
@@ -132,3 +137,4 @@ To start the server, you can run `yarn start` in the root directory. It will cre
 - `yarn run prune`: Stops and removes running containers and their asscociated data and columes
 - `yarn run build:client`: Builds client react app, and deploys it to nginx
 - `yarn run test`: Runs auto grading tests agains the api server
+- `yarn run setup`: Installs node_modules for server and client
