@@ -36,9 +36,15 @@ export const TodoList = () => {
     };
 
     if (!isAuthenticated || isLocal) {
-      dispatch(checkLocalTodo({ id })).then(onDone);
+      dispatch(checkLocalTodo({ id }))
+        .unwrap()
+        .then(onDone)
+        .catch((e) => console.log('Local update error', e));
     } else {
-      updateTodo({ id, done }).then(onDone);
+      updateTodo({ id, done })
+        .unwrap()
+        .then(onDone)
+        .catch((e) => console.log('Remote update error', e));
     }
   };
 
@@ -48,9 +54,15 @@ export const TodoList = () => {
     };
 
     if (!isAuthenticated || isLocal) {
-      dispatch(deleteLocalTodo({ id })).then(onDone);
+      dispatch(deleteLocalTodo({ id }))
+        .unwrap()
+        .then(onDone)
+        .catch((e) => console.log('Local delete error', e));
     } else {
-      deleteTodo(id).then(onDone);
+      deleteTodo(id)
+        .unwrap()
+        .then(onDone)
+        .catch((e) => console.log('Remote delete error', e));
     }
   };
 
