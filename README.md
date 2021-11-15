@@ -16,8 +16,9 @@ The NGINX reverse proxy is setup to redirect any request starting with `/api` to
 ### Auth
 
 - `GET /api/auth/google`: When a user clicks `Sign in with Google` the client will redirect the user to this route. It needs to handle redirecting the user to google OAuth consent page.
-- `GET /api/auth/google/callback`: This route won't be used by the client. However, it is needed for any OAuth application. Rememeber to add it to [Google APIs console](https://console.cloud.google.com/apis/credentials) settings as well.
+- `GET /api/auth/google/callback`: This route won't be used by the client. However, it is needed for any OAuth application. Rememeber to add it to [Google APIs console](https://console.cloud.google.com/apis/credentials) settings as well. By successful authentication, it should set an authentication cookie that holds the user JWT.
 - `GET /api/auth/me`: This is an **authenticated only** endpoint that should respond with a user object as specified in the user schema below.
+- `GET /api/auth/logout`: This is an **authenticated only** endpoint that should clear the authentication cookie and log the user out.
 
 ### Todos
 
@@ -98,6 +99,8 @@ The app is already bundled with an app secret inside `process.env.SECRET_KEY` th
 
 To authenticate future requests, another library can be used to read, and validate the JWT in the cookies. Some suggestions are [`passport-jwt-cookiecombo`](http://www.passportjs.org/packages/passport-jwt-cookiecombo/), [`express-jwt`](https://www.npmjs.com/package/express-jwt), and [`passport-jwt`](http://www.passportjs.org/packages/passport-jwt/).
 
+The user can be logged out by clearing the authentication cookie, thus deleting it from the client.
+
 ## Tests
 
 To successfully pass this lab, the tests will check the following:
@@ -110,6 +113,7 @@ To successfully pass this lab, the tests will check the following:
 - `GET REDIRECT_URI` with correct credentials redirects to `/` with cookie holding a valid JWT
 - `GET /api/auth/me` Sends a JSON response that have the user schema above when user is logged in
 - `GET /api/auth/me` Responds with 401 when the user isn't signed in (no auth cookie)
+- `GET /api/auth/logout` clears the auth cookie and responds with 200
 
 ### Todos endpoints
 
