@@ -1,47 +1,29 @@
 const express = require('express');
-const cors = require('cors');
+const apiRoutes = require('./routes');
+const db = require('./db');
+
+const port = process.env.PORT;
+
+// Because OAuth uses redirection, a proxy port is required to
+// redirect to the main proxy server that is defined in the OAuth app
+const PROXY_PORT = process.env.PROXY_PORT ?? port;
+
+if (!port) {
+  console.error('A port have to be specified in environment variable PORT');
+  process.exit(1);
+}
+
+db.connect().then(() => {});
 
 const app = express();
 
-// app.use(cors());
 app.use(express.json());
 
-app.options('*', cors());
+app.use('/api', apiRoutes);
 
-let todos = [
-  { id: 'au1', text: 'Todo 1', done: false },
-  { id: 'au2', text: 'Todo 2', done: false },
-  { id: 'au3', text: 'Todo 3', done: true },
-  { id: 'au4', text: 'Todo 4', done: false },
-];
-
-app.get('/api/todos', (req, res) => {
-  res.json(todos);
-});
-
-app.put('/api/todos/:id', (req, res) => {
-  const { done } = req.body;
-  const id = req.params.id;
-  const idx = todos.findIndex((t) => t.id === id);
-  todos[idx].done = done;
-  res.json(todos[idx]);
-});
-
-app.delete('/api/todos/:id', (req, res) => {
-  const id = req.params.id;
-  todos = todos.filter((t) => t.id !== id);
-  res.status(204).end();
-});
-
-app.post('/api/todos', (req, res) => {
-  const todo = req.body;
-  todo.id = `au${todos.length + 1}`;
-  todo.done = false;
-  todos.push(todo);
-  res.json(todo);
-});
-
-const port = process.env.SERVER_PORT || 5000;
 app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
+  console.log(`API Server started on port ${port}`);
+  console.log(
+    `Proxy server started on port ${PROXY_PORT}. Head to http://localhost:${PROXY_PORT} and start hacking.`
+  );
 });
