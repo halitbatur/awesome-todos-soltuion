@@ -18,7 +18,11 @@ if (!port) {
   process.exit(1);
 }
 
-db.connect().then(() => {});
+if (process.env.NODE_ENV !== 'test') {
+  db.connect().then(() => {
+    console.info('Connected to db');
+  });
+}
 
 const app = express();
 
@@ -61,12 +65,16 @@ app.use(passport.initialize());
 
 app.use('/api', apiRoutes);
 
-app.listen(port, () => {
-  console.log(`API Server started on port ${port}`);
-  console.log(
-    `Proxy server started on port ${PROXY_PORT}. Head to http://localhost:${PROXY_PORT} and start hacking.`
-  );
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`API Server started on port ${port}`);
+    console.log(
+      `Proxy server started on port ${PROXY_PORT}. Head to http://localhost:${PROXY_PORT} and start hacking.`
+    );
+  });
+}
+
+module.exports = app;
 
 function getCallbackURL(path, port) {
   if (!path.startsWith('/')) {
