@@ -8,11 +8,12 @@ let uri = DB_URI;
 
 module.exports = {
   DB_URI,
-  connect: async () => {
-    await mongoose.connect(uri).catch((err) => console.log(err));
+  connect: () => {
+    return mongoose.connect(uri).catch((err) => console.log(err));
   },
-  closeDatabase: async () => {
-    // await mongoose.connection.dropDatabase();
+  closeDatabase: async (drop = false) => {
+    drop && (await mongoose.connection.dropDatabase());
+    await mongoose.disconnect();
     await mongoose.connection.close();
   },
 
