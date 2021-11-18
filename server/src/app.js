@@ -8,7 +8,7 @@ const port = process.env.PORT;
 // redirect to the main proxy server that is defined in the OAuth app
 const PROXY_PORT = process.env.PROXY_PORT ?? port;
 
-if (!port) {
+if (!port && process.env.NODE_ENV !== 'test') {
   console.error('A port have to be specified in environment variable PORT');
   process.exit(1);
 }
