@@ -14,14 +14,13 @@ routes.put('/:id', async (req, res) => {
   const id = req.params.id;
 
   const todo = await Todo.findById(id);
-  console.log(todo, userId);
 
   if (!todo) {
     return res.status(404).json({ error: true, message: 'Item not found' });
   }
 
   if (todo.user.toString() !== userId) {
-    return res.status(403).json({
+    return res.status(401).json({
       error: true,
       message: "You don't have permission to update this item",
     });
@@ -43,7 +42,7 @@ routes.delete('/:id', async (req, res) => {
   }
 
   if (todo.user.toString() !== userId) {
-    return res.status(403).json({
+    return res.status(401).json({
       error: true,
       message: "You don't have permission to delete this item",
     });
@@ -60,7 +59,7 @@ routes.post('/', async (req, res) => {
     done: false,
     user: userId,
   });
-  res.json(todo);
+  res.status(201).json(todo);
 });
 
 module.exports = routes;
