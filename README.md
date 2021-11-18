@@ -89,7 +89,7 @@ When google user profile is shared with your app, you need to check if that user
 
 Once you have a new user, your redirect endpoint should generate a JSON Web token (JWT) that holds the user details. This JWT needs to be sent as cookie to the client. And it should expire in 14 days. Then redirect again to `/` to open the Todos app.
 
-> 📍 INFO: Traditionally, JWTs were saved in the browsers `localStorage`, and sent in the `Authorization` header. However, recent trends prefer the JWTs to be saved in a `httpOnly` cookies to prevent XSS Attacks. Read more [here](https://stormpath.com/blog/token-auth-spa).
+> 📍 INFO: Traditionally, JWTs were saved in the browsers `localStorage`, and sent in the `Authorization` header. However, recent trends prefer the JWTs to be saved in a `httpOnly` cookies to prevent XSS Attacks. Read more [here](https://stormpath.com/blog/token-auth-spa) and [here](https://supertokens.io/blog/are-you-using-jwts-for-user-sessions-in-the-correct-way).
 
 For security reasons, it is preferred to *encrypt* and *sign* your JWT cookie. That's because it won't be used as JWT in the client, it will only be transferred to your server with future requests as a cookie. Thus, only your server should know how to create it and read it. To decrypt and parse signed cookies, the following libraries can be used: [`cookie-parser`](https://www.npmjs.com/package/cookie-parser) and [`encrypt-cookie`](https://www.npmjs.com/package/encrypt-cookie).
 

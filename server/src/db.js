@@ -9,9 +9,10 @@ let uri = DB_URI;
 module.exports = {
   DB_URI,
   connect: () => {
-    return mongoose.connect(uri).catch((err) => console.log(err));
+    if (DB_HOST) return mongoose.connect(uri).catch((err) => console.log(err));
   },
   closeDatabase: async (drop = false) => {
+    if (!DB_HOST) return;
     drop && (await mongoose.connection.dropDatabase());
     await mongoose.disconnect();
     await mongoose.connection.close();

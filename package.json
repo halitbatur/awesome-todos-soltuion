@@ -15,7 +15,7 @@
     "prune": "docker-compose down --volume",
     "dev": "docker-compose --profile dev up",
     "build:dev": "docker-compose --profile dev up --build",
-    "test": "docker-compose --profile test up --abort-on-container-exit --exit-code-from backend_test --no-log-prefix",
+    "test": "docker-compose -p test -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from backend_test --no-log-prefix",
     "build:client": "cd client && BUILD_PATH='../nginx/client_build' yarn build",
     "preinstall": "echo Install is not allowed here. cd to server to install && exit 1"
   }
