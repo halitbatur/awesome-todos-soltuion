@@ -25,7 +25,7 @@ export const login = createAsyncThunk<User>('user/login', async () => {
   ) {
     return await res.json();
   } else {
-    return null;
+    throw new Error('Not logged in');
   }
 });
 
