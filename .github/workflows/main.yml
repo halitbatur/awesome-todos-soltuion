@@ -27,7 +27,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Setup containers
-        run: yarn setup
+        run: yarn run setup:server
       
       - name: Run tests
         run: yarn test
