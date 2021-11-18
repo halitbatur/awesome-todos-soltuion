@@ -89,6 +89,17 @@ When google user profile is shared with your app, you need to check if that user
 
 Once you have a new user, your redirect endpoint should generate a JSON Web token (JWT) that holds the user details. This JWT needs to be sent as cookie to the client. And it should expire in 14 days. Then redirect again to `/` to open the Todos app.
 
+JWT Should have the following claims:
+
+- `name`: full name of the user
+- `email`: user's email supplied by google
+- `providerId`: a string that matches `google-${GOOGLE_USER_ID}`
+- `exp`: expiration of the token, 14 days from issue
+- `iat`: Issued at date, date the token was issued
+- `avatar`: user's profile picture url supplied by google
+
+Note that `iat` - `exp` should equal 14 days (1209600 seconds)
+
 > 📍 INFO: Traditionally, JWTs were saved in the browsers `localStorage`, and sent in the `Authorization` header. However, recent trends prefer the JWTs to be saved in a `httpOnly` cookies to prevent XSS Attacks. Read more [here](https://stormpath.com/blog/token-auth-spa) and [here](https://supertokens.io/blog/are-you-using-jwts-for-user-sessions-in-the-correct-way).
 
 For security reasons, it is preferred to *encrypt* and *sign* your JWT cookie. That's because it won't be used as JWT in the client, it will only be transferred to your server with future requests as a cookie. Thus, only your server should know how to create it and read it. To decrypt and parse signed cookies, the following libraries can be used: [`cookie-parser`](https://www.npmjs.com/package/cookie-parser) and [`encrypt-cookie`](https://www.npmjs.com/package/encrypt-cookie).
@@ -110,7 +121,7 @@ To successfully pass this lab, the tests will check the following:
 - `GET /api/auth/google` redirects correctly to google authorization page
   - The request params contains valid `redirect_uri`, `scope`, and `client_id`
 - `GET REDIRECT_URI` with incorrect credentials redirects to `/` without cookie
-- `GET REDIRECT_URI` with correct credentials redirects to `/` with cookie holding a valid JWT
+- `GET REDIRECT_URI` with correct credentials redirects to `/` with cookie holding a valid JWT as described above.
 - `GET /api/auth/me` Sends a JSON response that have the user schema above when user is logged in
 - `GET /api/auth/me` Responds with 401 when the user isn't signed in (no auth cookie)
 - `GET /api/auth/logout` clears the auth cookie and responds with 200
@@ -122,7 +133,7 @@ All endpoints should respond with 401 when user isn't signed in (no auth cookie)
 When user is signed in:
 
 - GET, POST endpoints should get all todos, and create a new Todo respectively
-- PUT, DELETE endpoints should update and delete one Todo respectively, **only** if it belong to the logged in user.
+- PUT, DELETE endpoints should update and delete one Todo respectively, **only** if it belong to the logged in user. Otherwise respond with 401
 
 ## Working with Docker
 
