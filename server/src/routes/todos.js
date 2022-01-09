@@ -2,12 +2,14 @@ const express = require('express');
 const routes = express.Router();
 const Todo = require('../models/Todo');
 
+// GET /api/todos : Returns all TODOs
 routes.get('/', async (req, res) => {
   const userId = req.auth.sub;
   const todos = await Todo.find({ user: userId });
   res.json(todos);
 });
 
+// PUT /api/todos/ID : Updates a single TODO
 routes.put('/:id', async (req, res) => {
   const userId = req.auth.sub;
   const { done } = req.body;
@@ -19,6 +21,7 @@ routes.put('/:id', async (req, res) => {
     return res.status(404).json({ error: true, message: 'Item not found' });
   }
 
+  // Allow only author to edit the TODO
   if (todo.user.toString() !== userId) {
     return res.status(401).json({
       error: true,
@@ -31,6 +34,7 @@ routes.put('/:id', async (req, res) => {
   res.json(todo);
 });
 
+// DELETE /api/todos/ID : Deletes a single TODO
 routes.delete('/:id', async (req, res) => {
   const userId = req.auth.sub;
   const id = req.params.id;
@@ -41,6 +45,7 @@ routes.delete('/:id', async (req, res) => {
     return res.status(404).json({ error: true, message: 'Item not found' });
   }
 
+  // Allow only author to delete the TODO
   if (todo.user.toString() !== userId) {
     return res.status(401).json({
       error: true,
@@ -52,6 +57,7 @@ routes.delete('/:id', async (req, res) => {
   res.status(204).end();
 });
 
+// POST /api/todos : Create a new TODO
 routes.post('/', async (req, res) => {
   const userId = req.auth.sub;
   const todo = await Todo.create({

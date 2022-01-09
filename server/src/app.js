@@ -1,11 +1,13 @@
 const express = require('express');
-const passport = require('passport');
-const cookieParser = require('cookie-parser');
-const { encryptCookieNodeMiddleware } = require('encrypt-cookie');
-const jwt = require('express-jwt');
+const passport = require('passport'); // PassportJS middleware
+const GoogleStrategy = require('passport-google-oauth20').Strategy; // PassportJS Google OAuth 2.0 strategy
+const cookieParser = require('cookie-parser'); // Express middleware for parsing cookie header and signing cookies. The parsed cookie is available as req.cookies.
+const { encryptCookieNodeMiddleware } = require('encrypt-cookie'); // Express middleware for encrypting and decrypting cookies.
+const jwt = require('express-jwt'); // Express middleware for validating JWTs through the jsonwebtoken module. The decoded JWT payload is available as req.user or req.auth.
+
 const apiRoutes = require('./routes');
-const googleStrategy = require('./google');
 const db = require('./db');
+const User = require('./models/User');
 
 const port = process.env.PORT;
 
@@ -26,29 +28,24 @@ if (process.env.NODE_ENV !== 'test') {
 
 const app = express();
 
-passport.use(
-  googleStrategy({
-    clientID: process.env.GAPP_CLIENT_ID,
-    clientSecret: process.env.GAPP_CLIENT_SECRET,
-    callbackURL: getCallbackURL('/api/auth/google/callback', PROXY_PORT),
-  })
-);
-
 app.use(express.json());
+
+// Let Express app use cookie middlewares with secret key for handling encryption of cookies
 app.use(cookieParser(process.env.SECRET_KEY));
 app.use(encryptCookieNodeMiddleware(process.env.SECRET_KEY));
+
+// Let Express app use JWT middleware to be used on all routes starting with /api
 app.use(
   '/api',
   jwt({
-    secret: process.env.SECRET_KEY,
-    algorithms: ['HS256'],
-    credentialsRequired: true,
-    requestProperty: 'auth',
+    secret: process.env.SECRET_KEY, // secret key is always required
+    algorithms: ['HS256'], // encryption algorithm is always required
+    requestProperty: 'auth', // This ensures that decoded token details will be available on req.auth else req.user is the default.
     getToken: (req) => req.signedCookies['_t'] ?? req.cookies['_t'],
   }).unless({ path: ['/api/auth/google', '/api/auth/google/callback'] })
 );
 
-// Error handling
+// Let Express app use a middleware function that sends 401 error response code for auth errors and 500 for others
 app.use(function (err, req, res, _next) {
   if (err.name === 'UnauthorizedError') {
     res
@@ -61,6 +58,55 @@ app.use(function (err, req, res, _next) {
   }
 });
 
+// Prepare Google Auth handling configuration
+const googleConfigs = {
+  clientID: process.env.GAPP_CLIENT_ID,
+  clientSecret: process.env.GAPP_CLIENT_SECRET,
+  callbackURL: 'http://localhost:3000/api/auth/google/callback',
+};
+const afterGoogleLogin = async function (
+  accessToken,
+  refreshToken,
+  profile,
+  cb
+) {
+  // In some cases it might be required to save user's access token and refresh token which are returned to us by Google.
+  // For this assignment, we will not worry about these tokens.
+  try {
+    // Search if logged in user exists in the database
+    let user = await User.findOne({ providerId: `google-${profile.id}` });
+    if (!user) {
+      // If user doesn't exist, create the user record on the database
+      // In creating user record we use values shared by Google with us such as email, name, picture, etc.
+      user = await User.create({
+        email: profile.emails?.shift().value,
+        name: profile.displayName,
+        firstname: profile.name?.givenName,
+        lastname: profile.name?.familyName,
+        profilePicture: profile.photos?.shift().value,
+        provider: 'google',
+        providerId: `google-${profile.id}`,
+      });
+    }
+    // Finally return user details
+    cb(null, user.toJSON());
+  } catch (err) {
+    cb(err, null);
+  }
+};
+
+// Configuring PassportJS Google OAuth 2.0 strategy on PassportJS instance
+passport.use(
+  // GoogleStrategy takes 2 arguments.
+  new GoogleStrategy(
+    // First argument is an object with client ID, client secret and callback URL.
+    googleConfigs,
+    // Second argument is a callback function to process authentication completion.
+    afterGoogleLogin
+  )
+);
+
+// Let Express app use configured and initialized PassportJS middleware
 app.use(passport.initialize());
 
 app.use('/api', apiRoutes);
@@ -75,18 +121,3 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 module.exports = app;
-
-function getCallbackURL(path, port) {
-  if (!path.startsWith('/')) {
-    path = `/${path}`;
-  }
-  const GITPOD_WS_URL = process.env.GITPOD_WORKSPACE_URL;
-  if (GITPOD_WS_URL) {
-    let url = new URL(GITPOD_WS_URL + path);
-    url.host = `${port}-${url.host}`;
-    return url.toString();
-  } else {
-    let url = new URL(`http://localhost:${port}${path}`);
-    return url.toString();
-  }
-}
